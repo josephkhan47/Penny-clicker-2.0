@@ -50,12 +50,12 @@
             font-size: 18px;
             margin-top: 10px;
         }
-        .bank-details {
+        .paypal-details {
             margin-top: 20px;
             display: none;
             text-align: left;
         }
-        .bank-details input {
+        .paypal-details input {
             width: calc(80% - 20px);
             padding: 10px;
             margin-top: 10px;
@@ -64,6 +64,11 @@
         #cash-out-message {
             margin-top: 20px;
             font-size: 18px;
+        }
+        #redirect-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007bff; /* Blue color for redirect message */
         }
     </style>
 </head>
@@ -79,14 +84,13 @@
         <button id="cash-out-button">Cash Out</button>
     </div>
 
-    <div class="bank-details" id="bank-details">
-        <h2>Bank Transfer Details</h2>
-        <input type="text" id="account-number" placeholder="Account Number" maxlength="8">
-        <input type="text" id="sort-code" placeholder="Sort Code" maxlength="6">
-        <input type="text" id="account-name" placeholder="Account Name">
+    <div class="paypal-details" id="paypal-details">
+        <h2>PayPal Email</h2>
+        <input type="email" id="paypal-email" placeholder="Enter your PayPal email">
     </div>
 
     <div id="cash-out-message"></div>
+    <div id="redirect-message"></div> <!-- Message for successful redirection -->
 </div>
 
 <script>
@@ -103,20 +107,23 @@
         document.getElementById('total-earnings').textContent = `Total Earnings: ${totalEarnings}p`;
     }
 
-    // Show bank details when cash-out amount is entered
+    // Show PayPal email input when cash-out amount is entered
     document.getElementById('cash-out-amount').addEventListener('input', function() {
         const cashOutAmount = parseInt(this.value, 10);
-        const bankDetailsDiv = document.getElementById('bank-details');
-        bankDetailsDiv.style.display = cashOutAmount > 0 ? 'block' : 'none';
+        const paypalDetailsDiv = document.getElementById('paypal-details');
+        paypalDetailsDiv.style.display = cashOutAmount > 0 ? 'block' : 'none';
     });
 
     // Cash out functionality
     document.getElementById('cash-out-button').addEventListener('click', function() {
         const cashOutAmount = parseInt(document.getElementById('cash-out-amount').value, 10);
         const cashOutMessage = document.getElementById('cash-out-message');
-        const accountNumber = document.getElementById('account-number').value;
-        const sortCode = document.getElementById('sort-code').value;
-        const accountName = document.getElementById('account-name').value;
+        const redirectMessage = document.getElementById('redirect-message');
+        const paypalEmail = document.getElementById('paypal-email').value;
+
+        // Clear previous messages
+        cashOutMessage.textContent = '';
+        redirectMessage.textContent = '';
 
         // Validate cash-out amount
         if (isNaN(cashOutAmount) || cashOutAmount <= 0) {
@@ -129,20 +136,27 @@
         if (cashOutAmount > totalEarnings) {
             cashOutMessage.textContent = "Insufficient earnings to cash out.";
             cashOutMessage.style.color = "red";
-        } else if (accountNumber.length !== 8 || sortCode.length !== 6) {
-            cashOutMessage.textContent = "Please enter valid bank details.";
+        } else if (!paypalEmail) {
+            cashOutMessage.textContent = "Please enter your PayPal email.";
             cashOutMessage.style.color = "red";
         } else {
-            // Here you would typically call your backend API to process the cash-out request
-            totalEarnings -= cashOutAmount; // Deduct the cash-out amount from total earnings
+            // Deduct the cash-out amount from total earnings
+            totalEarnings -= cashOutAmount; 
             updateEarningsDisplay(); // Update the display
-            cashOutMessage.textContent = `Successfully cashed out ${cashOutAmount}p to your bank!`;
-            cashOutMessage.style.color = "green";
-            document.getElementById('cash-out-amount').value = ""; // Clear input field
-            document.getElementById('account-number').value = ""; // Clear bank details
-            document.getElementById('sort-code').value = "";
-            document.getElementById('account-name').value = "";
-            document.getElementById('bank-details').style.display = 'none'; // Hide bank details
+
+            // Simulate redirect to PayPal for payment processing
+            redirectMessage.textContent = `Redirecting to PayPal to process ${cashOutAmount}p...`;
+            redirectMessage.style.color = "green";
+
+            // Here, you would typically call PayPal's API for processing the payment
+            // For this simulation, we'll just clear the input fields after 2 seconds
+            setTimeout(() => {
+                // Clear input fields
+                document.getElementById('cash-out-amount').value = ""; 
+                document.getElementById('paypal-email').value = ""; 
+                document.getElementById('paypal-details').style.display = 'none'; // Hide PayPal email input
+                redirectMessage.textContent = ""; // Clear the redirect message
+            }, 2000);
         }
     });
 </script>
